@@ -1,32 +1,123 @@
 using System.Diagnostics;
 using BibliotecaPruebaTecnica.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecaPruebaTecnica.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly BibliotecaContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(BibliotecaContext context )
         {
-            _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var libros = _context.Libros.Include(x => x.Autor).ToList();
+            
+            return View(libros);
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public IActionResult Crear()
         {
-            return View();
+            var model = new LibroViewModel
+            {
+                Autores = _context.Autores
+                .Select(a => new SelectListItem
+                {
+                    Value = a.AutorId.ToString(),
+                    Text = a.Nombre
+                }).ToList()
+            };
+
+            return View(model);
+            
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult CrearLibro(LibroViewModel model)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+
+            if (ModelState.IsValid)
+            {
+                var libro = new Libro
+                {
+                    Titulo = model.Libro.Titulo,
+                    AutorId = model.Libro.AutorId
+                };
+
+                _context.Libros.Add(libro);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+
+            
+            //model.Autores = _context.Autores
+            //    .Select(a => new SelectListItem
+            //    {
+            //        Value = a.AutorId.ToString(),
+            //        Text = a.Nombre
+            //    }).ToList();
+
+            return View(model);
         }
+
+        public IActionResult Editar(int id)
+        {
+            var libro = _context.Libros.Find(id);
+            if (libro == null)
+            {
+                return NotFound();
+            }
+
+            var model = new LibroViewModel
+            {
+                Libro = libro,
+                Autores = _context.Autores
+                    .Select(a => new SelectListItem
+                    {
+                        Value = a.AutorId.ToString(),
+                        Text = a.Nombre
+                    }).ToList()
+            };
+
+            return View(model);
+        }
+
+        public IActionResult Delete(int id) 
+        {
+            var libro = _context.Libros
+            .Include(l => l.Autor)
+            .FirstOrDefault(l => l.Id == id);
+
+            if (libro == null)
+            {
+                return NotFound();
+            }
+
+            return View(libro);
+        }
+
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var libro = _context.Libros.Find(id);
+            if (libro == null)
+            {
+                return NotFound();
+            }
+
+            _context.Libros.Remove(libro);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
     }
 }

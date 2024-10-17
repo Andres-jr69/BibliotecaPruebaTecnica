@@ -1,0 +1,28 @@
+﻿@model LibroViewModel
+@{
+    ViewData["Title"] = "Editar";
+}
+
+<h1>Editar Libro</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Libro.Id" />
+
+    <div class="form-group">
+        <label for="Titulo">Título</label>
+        <input asp-for="Libro.Titulo" class="form-control" />
+        <span asp-validation-for="Libro.Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="AutorID">Autor</label>
+        <select asp-for="Libro.AutorId" class="form-control" asp-items="Model.Autores"></select>
+        <span asp-validation-for="Libro.AutorId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

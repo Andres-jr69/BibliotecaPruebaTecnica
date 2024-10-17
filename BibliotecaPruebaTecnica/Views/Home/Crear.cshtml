@@ -1,0 +1,33 @@
+﻿@model LibroViewModel
+
+@{
+    ViewData["Title"] = "Crear";
+}
+
+<h1>Crear</h1>
+
+<form asp-controller="Home" asp-action="CrearLibro" method="post">
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Libro.Titulo" class="form-label">Titulo</label>
+        <input type="text" asp-for="Libro.Titulo " class="form-control" />
+        <span asp-validation-for="Libro.Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Libro.AutorId" class="form-label">Autor</label>
+        <select asp-for="Libro.AutorId" class="form-control" asp-items="Model.Autores"></select>
+        <span asp-validation-for="Libro.AutorId" class="text-danger"></span>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary"> Crear </button>
+    <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
